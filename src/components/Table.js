@@ -93,7 +93,7 @@ const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
             onDoubleClick={() => startEdit(user, index)}
             className={editIndex === index ? "editing-row" : ""}
           >
-            <td>{index + 1}</td>
+            <td>{user.id}</td>
             {["firstName", "lastName", "email"].map((field) => (
               <td
                 key={field}

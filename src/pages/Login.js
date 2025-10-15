@@ -1,18 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-// тестовые аккаунты
-const initialAccounts = [
+const defaultAccounts = [
   { username: "admin", password: "admin", role: "admin" },
   { username: "user", password: "user", role: "user" },
 ];
 
 const Login = ({ onLogin }) => {
-  const [accounts, setAccounts] = useState(initialAccounts);
+  const [accounts, setAccounts] = useState([]);
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const stored = localStorage.getItem("accounts");
+    if (stored) {
+      setAccounts(JSON.parse(stored));
+    } else {
+      localStorage.setItem("accounts", JSON.stringify(defaultAccounts));
+      setAccounts(defaultAccounts);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,7 +37,7 @@ const Login = ({ onLogin }) => {
     }
 
     if (isSignUp) {
-      // Проверяем, существует ли уже такой пользователь
+      // регистрация
       if (accounts.find((acc) => acc.username === form.username.trim())) {
         setError("User already exists");
         return;
@@ -40,11 +49,15 @@ const Login = ({ onLogin }) => {
         role: "user",
       };
 
-      setAccounts([...accounts, newUser]);
+      const updatedAccounts = [...accounts, newUser];
+      setAccounts(updatedAccounts);
+      localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
+
       onLogin(newUser);
+      localStorage.setItem("currentUser", JSON.stringify(newUser));
       navigate("/users");
     } else {
-      // Вход
+      // вход
       const foundUser = accounts.find(
         (acc) =>
           acc.username === form.username.trim() &&
@@ -53,6 +66,7 @@ const Login = ({ onLogin }) => {
 
       if (foundUser) {
         onLogin(foundUser);
+        localStorage.setItem("currentUser", JSON.stringify(foundUser));
         navigate("/users");
       } else {
         setError("Invalid username or password");
@@ -62,7 +76,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
-      <h2>{isSignUp ? "Sign Up" : "Sign In"}</h2>
+      <h2>{isSignUp ? "Create your account" : "Log into your account"}</h2>
       <form className="login-form" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -84,7 +98,6 @@ const Login = ({ onLogin }) => {
         </button>
       </form>
 
-      {/* Переключатель между Sign In / Sign Up */}
       <p className="switch-mode">
         {isSignUp ? (
           <>
