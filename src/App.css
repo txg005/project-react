@@ -180,3 +180,49 @@ table input:focus {
   80% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* логин */
+.login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-mode {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.switch-mode .link {
+  color: #007bff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.switch-mode .link:hover {
+  text-decoration: underline;
+}

@@ -1,39 +1,44 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
-import Table from "./components/Table";
-import Form from "./components/Form";
-import UserAPI from "./api/service";
+import Login from "./pages/Login";
+import Users from "./pages/Users";
 
 function App() {
-  const [users, setUsers] = useState(UserAPI.all());
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const addUser = (user) => {
-    const newUser = UserAPI.add(user);
-    setUsers([...users, newUser]);
+  const handleLogin = (user) => {
+    setCurrentUser(user);
   };
 
-  const removeUser = (index) => {
-    const user = users[index];
-    UserAPI.delete(user.id);
-    setUsers(users.filter((_, i) => i !== index));
-  };
-
-  const updateUser = (user) => {
-    UserAPI.update(user);
-    setUsers([...UserAPI.all()]);
+  const handleLogout = () => {
+    setCurrentUser(null);
   };
 
   return (
-    <div className="App">
-      <h2>Add User</h2>
-      <Form
-        handleSubmit={addUser}
-        inUser={{ firstName: "", lastName: "", email: "" }}
-      />
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Страница входа */}
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
 
-      <h2>Users</h2>
-      <Table users={users} removeUser={removeUser} updateUser={updateUser} />
-    </div>
+          {/* Страница пользователей */}
+          <Route
+            path="/users"
+            element={
+              currentUser ? (
+                <Users currentUser={currentUser} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          {/* Перенаправление по умолчанию */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

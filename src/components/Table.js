@@ -12,7 +12,7 @@ const TableHeader = () => (
   </thead>
 );
 
-const TableBody = ({ users, removeUser, updateUser }) => {
+const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [editData, setEditData] = useState({});
   const [focusField, setFocusField] = useState(null);
@@ -38,6 +38,7 @@ const TableBody = ({ users, removeUser, updateUser }) => {
   });
 
   const startEdit = (user, index, field = "firstName") => {
+    if (isReadOnly) return; // запрещено редактировать
     setEditIndex(index);
     setEditData(user);
     setFocusField(field);
@@ -48,10 +49,11 @@ const TableBody = ({ users, removeUser, updateUser }) => {
   };
 
   const sanitizeEmail = (email) =>
-    // eslint-disable-next-line no-control-regex
+    // eslint-disable-next-line
     email.normalize("NFKC").replace(/[^\u0000-\u007F]/g, "");
 
   const handleUpdate = () => {
+    if (!updateUser) return;
     if (!editData.email) return;
 
     const cleaned = { ...editData, email: sanitizeEmail(editData.email) };
@@ -64,14 +66,11 @@ const TableBody = ({ users, removeUser, updateUser }) => {
 
     updateUser(cleaned);
     setEditIndex(null);
-
     setUpdatedIndex(editIndex);
     setTimeout(() => setUpdatedIndex(null), 2000);
   };
 
-  const handleCancel = () => {
-    setEditIndex(null);
-  };
+  const handleCancel = () => setEditIndex(null);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -118,7 +117,7 @@ const TableBody = ({ users, removeUser, updateUser }) => {
               </td>
             ))}
             <td>
-              {editIndex === index ? (
+              {editIndex === index && !isReadOnly ? (
                 <>
                   <button className="update-btn" onClick={handleUpdate}>
                     Update
@@ -127,7 +126,7 @@ const TableBody = ({ users, removeUser, updateUser }) => {
                     Cancel
                   </button>
                 </>
-              ) : (
+              ) : !isReadOnly ? (
                 <>
                   <button className="delete-btn" onClick={() => removeUser(index)}>
                     Delete
@@ -136,6 +135,8 @@ const TableBody = ({ users, removeUser, updateUser }) => {
                     <span className="updated-msg">✓ Updated</span>
                   )}
                 </>
+              ) : (
+                <span style={{ color: "#999" }}>View only</span>
               )}
             </td>
           </tr>
@@ -151,10 +152,15 @@ const TableBody = ({ users, removeUser, updateUser }) => {
   );
 };
 
-const Table = ({ users, removeUser, updateUser }) => (
+const Table = ({ users, removeUser, updateUser, isReadOnly }) => (
   <table>
     <TableHeader />
-    <TableBody users={users} removeUser={removeUser} updateUser={updateUser} />
+    <TableBody
+      users={users}
+      removeUser={removeUser}
+      updateUser={updateUser}
+      isReadOnly={isReadOnly}
+    />
   </table>
 );
 
