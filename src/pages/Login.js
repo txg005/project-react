@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "../redux/actions/authActions";
 
 const defaultAccounts = [
   { username: "admin", password: "admin", role: "admin" },
   { username: "user", password: "user", role: "user" },
 ];
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [accounts, setAccounts] = useState([]);
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const stored = localStorage.getItem("accounts");
@@ -37,7 +40,6 @@ const Login = ({ onLogin }) => {
     }
 
     if (isSignUp) {
-      // регистрация
       if (accounts.find((acc) => acc.username === form.username.trim())) {
         setError("User already exists");
         return;
@@ -53,11 +55,9 @@ const Login = ({ onLogin }) => {
       setAccounts(updatedAccounts);
       localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
 
-      onLogin(newUser);
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
+      dispatch(setCurrentUser(newUser));
       navigate("/users");
     } else {
-      // вход
       const foundUser = accounts.find(
         (acc) =>
           acc.username === form.username.trim() &&
@@ -65,8 +65,7 @@ const Login = ({ onLogin }) => {
       );
 
       if (foundUser) {
-        onLogin(foundUser);
-        localStorage.setItem("currentUser", JSON.stringify(foundUser));
+        dispatch(setCurrentUser(foundUser));
         navigate("/users");
       } else {
         setError("Invalid username or password");

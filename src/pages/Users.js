@@ -1,25 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Form from "../components/Form";
 import Table from "../components/Table";
-import UserAPI from "../api/service";
+import { addUser, deleteUser, updateUser } from "../redux/actions/userActions";
+import { logoutUser } from "../redux/actions/authActions";
 
-const Users = ({ currentUser, onLogout }) => {
-  const [users, setUsers] = useState(UserAPI.all());
+const Users = () => {
+  const dispatch = useDispatch();
+  const users = useSelector((state) => state.usersState.users);
+  const currentUser = useSelector((state) => state.authState.currentUser);
 
-  const addUser = (user) => {
-    const newUser = UserAPI.add(user);
-    setUsers([...users, newUser]);
-  };
-
-  const removeUser = (index) => {
-    const user = users[index];
-    UserAPI.delete(user.id);
-    setUsers(users.filter((_, i) => i !== index));
-  };
-
-  const updateUser = (user) => {
-    UserAPI.update(user);
-    setUsers([...UserAPI.all()]);
+  const handleLogout = () => {
+    dispatch(logoutUser());
   };
 
   return (
@@ -29,17 +21,16 @@ const Users = ({ currentUser, onLogout }) => {
           Welcome, {currentUser.username}{" "}
           <span style={{ color: "#888" }}>({currentUser.role})</span>
         </h2>
-        <button onClick={onLogout} className="cancel-btn">
+        <button onClick={handleLogout} className="cancel-btn">
           Logout
         </button>
       </div>
 
-      {/* Только админ может добавлять */}
       {currentUser.role === "admin" && (
         <>
           <h2>Add User</h2>
           <Form
-            handleSubmit={addUser}
+            handleSubmit={(user) => dispatch(addUser(user))}
             inUser={{ firstName: "", lastName: "", email: "" }}
           />
         </>
@@ -49,10 +40,14 @@ const Users = ({ currentUser, onLogout }) => {
       <Table
         users={users}
         removeUser={
-          currentUser.role === "admin" ? removeUser : undefined
+          currentUser.role === "admin"
+            ? (id) => dispatch(deleteUser(id))
+            : undefined
         }
         updateUser={
-          currentUser.role === "admin" ? updateUser : undefined
+          currentUser.role === "admin"
+            ? (user) => dispatch(updateUser(user))
+            : undefined
         }
         isReadOnly={currentUser.role !== "admin"}
       />

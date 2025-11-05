@@ -1,28 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
+import { Provider, useSelector } from "react-redux";
+import store from "./redux/store";
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  const handleLogin = (user) => {
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem("currentUser");
-  };
+function AppWrapper() {
+  const currentUser = useSelector((state) => state.authState.currentUser);
 
   return (
     <Router>
@@ -34,22 +19,20 @@ function App() {
               currentUser ? (
                 <Navigate to="/users" replace />
               ) : (
-                <Login onLogin={handleLogin} />
+                <Login />
               )
             }
           />
-
           <Route
             path="/users"
             element={
               currentUser ? (
-                <Users currentUser={currentUser} onLogout={handleLogout} />
+                <Users />
               ) : (
                 <Navigate to="/login" replace />
               )
             }
           />
-
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
@@ -57,4 +40,10 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppWrapper />
+    </Provider>
+  );
+}
