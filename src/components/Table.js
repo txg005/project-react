@@ -153,7 +153,7 @@ const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
 };
 
 const Table = ({ users, removeUser, updateUser, isReadOnly }) => (
-  <table>
+  <table className="user-table">
     <TableHeader />
     <TableBody
       users={users}

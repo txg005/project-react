@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Users from "./pages/Users";
 import { Provider, useSelector } from "react-redux";
 import store from "./redux/store";
+import { CustomThemeProvider } from "./theme/ThemeContext";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
 function AppWrapper() {
   const currentUser = useSelector((state) => state.authState.currentUser);
@@ -12,25 +14,18 @@ function AppWrapper() {
   return (
     <Router>
       <div className="App">
+        <ThemeSwitcher />
         <Routes>
           <Route
             path="/login"
             element={
-              currentUser ? (
-                <Navigate to="/users" replace />
-              ) : (
-                <Login />
-              )
+              currentUser ? <Navigate to="/users" replace /> : <Login />
             }
           />
           <Route
             path="/users"
             element={
-              currentUser ? (
-                <Users />
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              currentUser ? <Users /> : <Navigate to="/login" replace />
             }
           />
           <Route path="*" element={<Navigate to="/login" replace />} />
@@ -43,7 +38,9 @@ function AppWrapper() {
 export default function App() {
   return (
     <Provider store={store}>
-      <AppWrapper />
+      <CustomThemeProvider>
+        <AppWrapper />
+      </CustomThemeProvider>
     </Provider>
   );
 }
