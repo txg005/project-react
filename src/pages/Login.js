@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "../redux/actions/authActions";
+import { loginUser } from "../redux/actions/authActions";
 
 const defaultAccounts = [
   { username: "admin", password: "admin", role: "admin" },
@@ -55,7 +55,7 @@ const Login = () => {
       setAccounts(updatedAccounts);
       localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
 
-      dispatch(setCurrentUser(newUser));
+      dispatch(loginUser(newUser));
       navigate("/users");
     } else {
       const foundUser = accounts.find(
@@ -65,7 +65,7 @@ const Login = () => {
       );
 
       if (foundUser) {
-        dispatch(setCurrentUser(foundUser));
+        dispatch(loginUser(foundUser));
         navigate("/users");
       } else {
         setError("Invalid username or password");

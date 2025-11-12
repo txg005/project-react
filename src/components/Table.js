@@ -38,7 +38,7 @@ const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
   });
 
   const startEdit = (user, index, field = "firstName") => {
-    if (isReadOnly) return; // запрещено редактировать
+    if (isReadOnly) return;
     setEditIndex(index);
     setEditData(user);
     setFocusField(field);
@@ -128,7 +128,7 @@ const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
                 </>
               ) : !isReadOnly ? (
                 <>
-                  <button className="delete-btn" onClick={() => removeUser(index)}>
+                  <button className="delete-btn" onClick={() => removeUser(user.id)}>
                     Delete
                   </button>
                   {updatedIndex === index && (

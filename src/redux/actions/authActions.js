@@ -1,10 +1,12 @@
-import { SET_CURRENT_USER, LOGOUT_USER } from "./actionTypes";
+import {
+  setCurrentUser as setCurrentUserSlice,
+  logoutUser as logoutUserSlice,
+} from "../slices/authSlice";
 
-export const setCurrentUser = (user) => ({
-  type: SET_CURRENT_USER,
-  payload: user,
-});
+export const loginUser = (user) => (dispatch) => {
+  dispatch(setCurrentUserSlice(user));
+};
 
-export const logoutUser = () => ({
-  type: LOGOUT_USER,
-});
+export const logoutUser = () => (dispatch) => {
+  dispatch(logoutUserSlice());
+};
