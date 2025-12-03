@@ -1,167 +1,166 @@
 import React, { useState, useRef, useEffect } from "react";
+import {
+  Table as MuiTable,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-const TableHeader = () => (
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>FirstName</th>
-      <th>LastName</th>
-      <th>Email</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-);
-
-const TableBody = ({ users, removeUser, updateUser, isReadOnly }) => {
+const UsersTable = ({ users, removeUser, updateUser, isReadOnly }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [editData, setEditData] = useState({});
-  const [focusField, setFocusField] = useState(null);
-  const [updatedIndex, setUpdatedIndex] = useState(null);
-  const rowRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (inputRef.current) inputRef.current.focus();
-  }, [focusField, editIndex]);
+  }, [editIndex]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (rowRef.current && !rowRef.current.contains(event.target)) {
-        if (editIndex !== null) {
-          handleUpdate();
-        }
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  });
-
-  const startEdit = (user, index, field = "firstName") => {
+  const startEdit = (user, index) => {
     if (isReadOnly) return;
     setEditIndex(index);
     setEditData(user);
-    setFocusField(field);
   };
 
-  const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
-
-  const sanitizeEmail = (email) =>
-    // eslint-disable-next-line
-    email.normalize("NFKC").replace(/[^\u0000-\u007F]/g, "");
-
-  const handleUpdate = () => {
-    if (!updateUser) return;
-    if (!editData.email) return;
-
-    const cleaned = { ...editData, email: sanitizeEmail(editData.email) };
-    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-    if (!emailRegex.test(cleaned.email)) {
-      alert("Введите корректный Email (например: user@gmail.com)");
-      return;
-    }
-
-    updateUser(cleaned);
+  const cancelEdit = () => {
     setEditIndex(null);
-    setUpdatedIndex(editIndex);
-    setTimeout(() => setUpdatedIndex(null), 2000);
+    setEditData({});
   };
 
-  const handleCancel = () => setEditIndex(null);
+  const handleChange = (e) => setEditData({ ...editData, [e.target.name]: e.target.value });
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleUpdate();
+      saveEdit();
     }
     if (e.key === "Escape") {
       e.preventDefault();
-      handleCancel();
+      cancelEdit();
     }
   };
 
+  const saveEdit = () => {
+    if (!editData.email) return;
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(editData.email)) {
+      alert("Введите корректный Email (например: user@gmail.com)");
+      return;
+    }
+    updateUser(editData);
+    setEditIndex(null);
+    setEditData({});
+  };
+
   return (
-    <tbody>
-      {users.length > 0 ? (
-        users.map((user, index) => (
-          <tr
-            key={user.id || index}
-            ref={editIndex === index ? rowRef : null}
-            onDoubleClick={() => startEdit(user, index)}
-            className={editIndex === index ? "editing-row" : ""}
-          >
-            <td>{user.id}</td>
-            {["firstName", "lastName", "email"].map((field) => (
-              <td
-                key={field}
-                onDoubleClick={(e) => {
-                  e.stopPropagation();
-                  startEdit(user, index, field);
-                }}
-              >
+    <TableContainer component={Paper} className="table-paper">
+      <MuiTable className="user-table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Id</TableCell>
+            <TableCell>FirstName</TableCell>
+            <TableCell>LastName</TableCell>
+            <TableCell>Email</TableCell>
+            <TableCell>Action</TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {users.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Typography align="center">Нет пользователей</Typography>
+              </TableCell>
+            </TableRow>
+          )}
+          {users.map((user, index) => (
+            <TableRow
+              key={user.id}
+              onDoubleClick={() => startEdit(user, index)}
+              className={editIndex === index ? "editing-row" : ""}
+            >
+              <TableCell>{user.id}</TableCell>
+
+              <TableCell>
                 {editIndex === index ? (
-                  <input
-                    ref={focusField === field ? inputRef : null}
-                    type={field === "email" ? "email" : "text"}
-                    name={field}
-                    value={editData[field] || ""}
+                  <TextField
+                    name="firstName"
+                    value={editData.firstName || ""}
                     onChange={handleChange}
+                    inputRef={inputRef}
                     onKeyDown={handleKeyDown}
+                    variant="outlined"
+                    size="small"
+                    className="mui-input"
                   />
                 ) : (
-                  user[field]
+                  user.firstName
                 )}
-              </td>
-            ))}
-            <td>
-              {editIndex === index && !isReadOnly ? (
-                <>
-                  <button className="update-btn" onClick={handleUpdate}>
-                    Update
-                  </button>
-                  <button className="cancel-btn" onClick={handleCancel}>
-                    Cancel
-                  </button>
-                </>
-              ) : !isReadOnly ? (
-                <>
-                  <button className="delete-btn" onClick={() => removeUser(user.id)}>
-                    Delete
-                  </button>
-                  {updatedIndex === index && (
-                    <span className="updated-msg">✓ Updated</span>
-                  )}
-                </>
-              ) : (
-                <span style={{ color: "#999" }}>View only</span>
-              )}
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="5" style={{ textAlign: "center" }}>
-            Нет пользователей
-          </td>
-        </tr>
-      )}
-    </tbody>
+              </TableCell>
+
+              <TableCell>
+                {editIndex === index ? (
+                  <TextField
+                    name="lastName"
+                    value={editData.lastName || ""}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    variant="outlined"
+                    size="small"
+                    className="mui-input"
+                  />
+                ) : (
+                  user.lastName
+                )}
+              </TableCell>
+
+              <TableCell>
+                {editIndex === index ? (
+                  <TextField
+                    name="email"
+                    value={editData.email || ""}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    variant="outlined"
+                    size="small"
+                    className="mui-input"
+                  />
+                ) : (
+                  user.email
+                )}
+              </TableCell>
+
+              <TableCell>
+                {editIndex === index && !isReadOnly ? (
+                  <>
+                    <button className="update-btn" onClick={saveEdit}>Update</button>
+                    <button className="cancel-btn" onClick={cancelEdit}>Cancel</button>
+                  </>
+                ) : !isReadOnly ? (
+                  <IconButton
+                    onClick={() => removeUser(user.id)}
+                    size="small"
+                    aria-label="delete"
+                    className="mui-delete"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                ) : (
+                  <Typography variant="body2" color="textSecondary">View only</Typography>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </MuiTable>
+    </TableContainer>
   );
 };
 
-const Table = ({ users, removeUser, updateUser, isReadOnly }) => (
-  <table className="user-table">
-    <TableHeader />
-    <TableBody
-      users={users}
-      removeUser={removeUser}
-      updateUser={updateUser}
-      isReadOnly={isReadOnly}
-    />
-  </table>
-);
-
-export default Table;
+export default UsersTable;

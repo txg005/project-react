@@ -1,7 +1,8 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Box, Paper, Typography, Button } from "@mui/material";
 import Form from "../components/Form";
-import Table from "../components/Table";
+import UsersTable from "../components/Table";
 import { addUser, deleteUser, updateUser } from "../redux/actions/userActions";
 import { logoutUser } from "../redux/actions/authActions";
 
@@ -10,48 +11,36 @@ const Users = () => {
   const users = useSelector((state) => state.usersState.users);
   const currentUser = useSelector((state) => state.authState.currentUser);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const handleLogout = () => dispatch(logoutUser());
 
   return (
-    <div>
-      <div className="user-header">
-        <h2>
-          Welcome, {currentUser.username}{" "}
-          <span style={{ color: "#888" }}>({currentUser.role})</span>
-        </h2>
-        <button onClick={handleLogout} className="cancel-btn">
-          Logout
-        </button>
-      </div>
+    <Box p={2}>
+      <Paper elevation={2} className="user-header-paper">
+        <Box display="flex" justifyContent="space-between" alignItems="center" className="user-header">
+          <Typography variant="h6">
+            Welcome, {currentUser.username} <span className="muted">({currentUser.role})</span>
+          </Typography>
+          <Button variant="outlined" className="cancel-btn" onClick={handleLogout}>Logout</Button>
+        </Box>
+      </Paper>
 
       {currentUser.role === "admin" && (
-        <>
-          <h2>Add User</h2>
-          <Form
-            handleSubmit={(user) => dispatch(addUser(user))}
-            inUser={{ firstName: "", lastName: "", email: "" }}
-          />
-        </>
+        <Box mt={2}>
+          <Typography variant="h6">Add User</Typography>
+          <Form handleSubmit={(user) => dispatch(addUser(user))} inUser={{ firstName: "", lastName: "", email: "" }} />
+        </Box>
       )}
 
-      <h2>Users</h2>
-      <Table
-        users={users}
-        removeUser={
-          currentUser.role === "admin"
-            ? (id) => dispatch(deleteUser(id))
-            : undefined
-        }
-        updateUser={
-          currentUser.role === "admin"
-            ? (user) => dispatch(updateUser(user))
-            : undefined
-        }
-        isReadOnly={currentUser.role !== "admin"}
-      />
-    </div>
+      <Box mt={3}>
+        <Typography variant="h6">Users</Typography>
+        <UsersTable
+          users={users}
+          removeUser={currentUser.role === "admin" ? (id) => dispatch(deleteUser(id)) : undefined}
+          updateUser={currentUser.role === "admin" ? (user) => dispatch(updateUser(user)) : undefined}
+          isReadOnly={currentUser.role !== "admin"}
+        />
+      </Box>
+    </Box>
   );
 };
 

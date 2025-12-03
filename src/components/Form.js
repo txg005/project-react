@@ -1,79 +1,74 @@
 import React, { useState, useEffect } from "react";
+import { Box, TextField, Button, Stack } from "@mui/material";
 
 const Form = ({ handleSubmit, inUser }) => {
   const [user, setUser] = useState(inUser);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    setUser(inUser);
-  }, [inUser]);
+  useEffect(() => setUser(inUser), [inUser]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setUser({ ...user, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!user.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!user.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!user.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+    if (!user.firstName?.trim()) newErrors.firstName = "First name is required";
+    if (!user.lastName?.trim()) newErrors.lastName = "Last name is required";
+    if (!user.email?.trim()) newErrors.email = "Email is required";
+    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email))
       newErrors.email = "Invalid email format";
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const onSubmit = (event) => {
-    event.preventDefault();
+  const onSubmit = (e) => {
+    e.preventDefault();
     if (!validate()) return;
-
     handleSubmit(user);
     setUser(inUser);
   };
 
   return (
-    <form onSubmit={onSubmit} className="user-form">
-      <div className="form-group">
-        <input
-          type="text"
+    <Box component="form" onSubmit={onSubmit} className="user-form mui-form">
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+        <TextField
+          label="FirstName"
           name="firstName"
-          placeholder="FirstName"
           value={user.firstName}
           onChange={handleChange}
+          variant="outlined"
+          className="mui-input"
         />
-        {errors.firstName && <span className="error">{errors.firstName}</span>}
-      </div>
-
-      <div className="form-group">
-        <input
-          type="text"
+        <TextField
+          label="LastName"
           name="lastName"
-          placeholder="LastName"
           value={user.lastName}
           onChange={handleChange}
+          variant="outlined"
+          className="mui-input"
         />
-        {errors.lastName && <span className="error">{errors.lastName}</span>}
-      </div>
-
-      <div className="form-group">
-        <input
-          type="email"
+        <TextField
+          label="Email"
           name="email"
-          placeholder="Email"
           value={user.email}
           onChange={handleChange}
+          variant="outlined"
+          className="mui-input"
         />
-        {errors.email && <span className="error">{errors.email}</span>}
-      </div>
+        <Button type="submit" variant="contained" className="add-btn">
+          {user.id ? "Update User" : "Add User"}
+        </Button>
+      </Stack>
 
-      <button type="submit" className="add-btn">
-        {user.id ? "Update User" : "Add User"}
-      </button>
-    </form>
+      <div style={{ marginTop: 6 }}>
+        {errors.firstName && <div className="error">{errors.firstName}</div>}
+        {errors.lastName && <div className="error">{errors.lastName}</div>}
+        {errors.email && <div className="error">{errors.email}</div>}
+      </div>
+    </Box>
   );
 };
 

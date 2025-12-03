@@ -13,6 +13,9 @@ const ThemeSwitcher = () => {
             checked={mode === "dark"}
             onChange={toggleTheme}
             color="primary"
+            slotProps={{
+              input: { 'aria-label': 'Dark mode toggle' }
+            }}
           />
         }
         label="Dark mode"
