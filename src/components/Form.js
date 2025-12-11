@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button, Stack } from "@mui/material";
+import { Box, TextField, Button, Stack, CircularProgress } from "@mui/material";
 
 const Form = ({ handleSubmit, inUser }) => {
   const [user, setUser] = useState(inUser);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => setUser(inUser), [inUser]);
 
@@ -27,8 +28,12 @@ const Form = ({ handleSubmit, inUser }) => {
   const onSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    handleSubmit(user);
-    setUser(inUser);
+    setLoading(true);
+    setTimeout(() => {
+      handleSubmit(user);
+      setLoading(false);
+      setUser(inUser);
+    }, 500);
   };
 
   return (
@@ -61,6 +66,8 @@ const Form = ({ handleSubmit, inUser }) => {
         <Button type="submit" variant="contained" className="add-btn">
           {user.id ? "Update User" : "Add User"}
         </Button>
+
+        {loading && <CircularProgress size={23} className="spinner" />}
       </Stack>
 
       <div style={{ marginTop: 6 }}>

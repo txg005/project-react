@@ -151,3 +151,9 @@
   .user-form { flex-direction: column; align-items: stretch; }
   .login-container { width: calc(100% - 32px); margin: 24px; }
 }
+
+/* Loader spinner */
+.spinner {
+  margin-left: 8px;
+  vertical-align: middle;
+}

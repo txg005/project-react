@@ -10,12 +10,14 @@ import {
   IconButton,
   TextField,
   Typography,
+  CircularProgress
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const UsersTable = ({ users, removeUser, updateUser, isReadOnly }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [editData, setEditData] = useState({});
+  const [loadingId, setLoadingId] = useState(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -53,9 +55,21 @@ const UsersTable = ({ users, removeUser, updateUser, isReadOnly }) => {
       alert("Введите корректный Email (например: user@gmail.com)");
       return;
     }
-    updateUser(editData);
-    setEditIndex(null);
-    setEditData({});
+    setLoadingId(editData.id);
+    setTimeout(() => {
+      updateUser(editData);
+      setLoadingId(null);
+      setEditIndex(null);
+      setEditData({});
+    }, 500);
+  };
+
+  const handleDelete = (id) => {
+    setLoadingId(id);
+    setTimeout(() => {
+      removeUser(id);
+      setLoadingId(null);
+    }, 500);
   };
 
   return (
@@ -141,16 +155,20 @@ const UsersTable = ({ users, removeUser, updateUser, isReadOnly }) => {
                   <>
                     <button className="update-btn" onClick={saveEdit}>Update</button>
                     <button className="cancel-btn" onClick={cancelEdit}>Cancel</button>
+                    {loadingId === user.id && <CircularProgress size={22} className="spinner" />}
                   </>
                 ) : !isReadOnly ? (
-                  <IconButton
-                    onClick={() => removeUser(user.id)}
-                    size="small"
-                    aria-label="delete"
-                    className="mui-delete"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  <>
+                    <IconButton
+                      onClick={() => handleDelete(user.id)}
+                      size="small"
+                      aria-label="delete"
+                      className="mui-delete"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    {loadingId === user.id && <CircularProgress size={22} className="spinner" />}
+                  </>
                 ) : (
                   <Typography variant="body2" color="textSecondary">View only</Typography>
                 )}
