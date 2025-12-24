@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../redux/actions/authActions";
+import { loginUserAsync } from "../redux/slices/authSlice";
 
 const defaultAccounts = [
   { username: "admin", password: "admin", role: "admin" },
@@ -59,7 +59,7 @@ const Login = () => {
       const updatedAccounts = [...accounts, newUser];
       setAccounts(updatedAccounts);
       localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
-      dispatch(loginUser(newUser));
+      dispatch(loginUserAsync(newUser));
       navigate("/users");
     } else {
       const foundUser = accounts.find(
@@ -68,7 +68,7 @@ const Login = () => {
           acc.password === form.password.trim()
       );
       if (foundUser) {
-        dispatch(loginUser(foundUser));
+        dispatch(loginUserAsync(foundUser));
         navigate("/users");
       } else {
         setError("Invalid username or password");

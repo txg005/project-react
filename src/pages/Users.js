@@ -3,15 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Paper, Typography, Button } from "@mui/material";
 import Form from "../components/Form";
 import UsersTable from "../components/Table";
-import { addUser, deleteUser, updateUser } from "../redux/actions/userActions";
-import { logoutUser } from "../redux/actions/authActions";
+import { addUserAsync, deleteUserAsync, updateUserAsync } from "../redux/slices/usersSlice";
+import { logoutUserAsync } from "../redux/slices/authSlice";
 
 const Users = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.usersState.users);
   const currentUser = useSelector((state) => state.authState.currentUser);
 
-  const handleLogout = () => dispatch(logoutUser());
+  const handleLogout = () => dispatch(logoutUserAsync());
 
   return (
     <Box p={2}>
@@ -27,7 +27,7 @@ const Users = () => {
       {currentUser.role === "admin" && (
         <Box mt={2}>
           <Typography variant="h6">Add User</Typography>
-          <Form handleSubmit={(user) => dispatch(addUser(user))} inUser={{ firstName: "", lastName: "", email: "" }} />
+          <Form handleSubmit={(user) => dispatch(addUserAsync(user))} inUser={{ firstName: "", lastName: "", email: "" }} />
         </Box>
       )}
 
@@ -35,8 +35,8 @@ const Users = () => {
         <Typography variant="h6">Users</Typography>
         <UsersTable
           users={users}
-          removeUser={currentUser.role === "admin" ? (id) => dispatch(deleteUser(id)) : undefined}
-          updateUser={currentUser.role === "admin" ? (user) => dispatch(updateUser(user)) : undefined}
+          removeUser={currentUser.role === "admin" ? (id) => dispatch(deleteUserAsync(id)) : undefined}
+          updateUser={currentUser.role === "admin" ? (user) => dispatch(updateUserAsync(user)) : undefined}
           isReadOnly={currentUser.role !== "admin"}
         />
       </Box>
